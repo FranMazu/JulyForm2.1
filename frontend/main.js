@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault(); // Evitar recarga de la página
 
         const formData = new FormData(form); // Captura todo, incluyendo los archivos
+        console.log('Backend URL:', process.env.NEXT_PUBLIC_BACKEND_URL);
 
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/send`, {
