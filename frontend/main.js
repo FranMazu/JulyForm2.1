@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData(form); // Captura todo, incluyendo los archivos
 
         try {
-            const response = await fetch('http://localhost:3000/send', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/send`, {
                 method: 'POST',
                 body: formData
             });
