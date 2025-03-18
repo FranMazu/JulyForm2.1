@@ -1,14 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.querySelector('form');
 
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault(); // Evitar recarga de la página
+    if (!form) {
+        console.error("No se encontró el formulario en la página.");
+        return;
+    }
 
-        const formData = new FormData(form); // Captura todo, incluyendo los archivos
-        console.log('Backend URL:', process.env.NEXT_PUBLIC_BACKEND_URL);
+    const backendUrl = "https://julyform21-production.up.railway.app"; // URL fija para evitar problemas
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Evita recargar la página
+
+        const formData = new FormData(form); // Captura todo, incluyendo archivos
+        console.log("Enviando a:", backendUrl);
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/send`, {
+            const response = await fetch(`${backendUrl}/send`, {
                 method: 'POST',
                 body: formData
             });
