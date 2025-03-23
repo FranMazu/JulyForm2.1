@@ -1,36 +1,32 @@
-const fs = require('fs');
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const nodemailer = require('nodemailer');
+const mongoose = require('mongoose');
 const multer = require('multer');
+const nodemailer = require('nodemailer');
 const path = require('path');
-require('dotenv').config();
-
-const connectDB = require('./db');
-connectDB();
+const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Conectar a MongoDB
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => console.log('✅ Conectado a MongoDB'))
+  .catch(err => {
+      console.error('❌ Error al conectar con MongoDB:', err);
+      process.exit(1);
+  });
 
 // Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static('uploads'));
 
-// Asegurar carpeta uploads
-if (!fs.existsSync('uploads')) fs.mkdirSync('uploads');
-
-// Configuración Multer
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, 'uploads/'),
-    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
-});
-const upload = multer({ storage });
-
-// Modelo de MongoDB
-const mongoose = require('mongoose');
+// Modelo de datos
 const FormSchema = new mongoose.Schema({
     nombre: String,
     email: String,
@@ -41,6 +37,13 @@ const FormSchema = new mongoose.Schema({
 });
 const Formulario = mongoose.model('Formulario', FormSchema);
 
+// Configuración de almacenamiento para archivos
+const storage = multer.diskStorage({
+    destination: 'uploads/',
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+const upload = multer({ storage });
+
 // Configuración de Nodemailer
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -50,44 +53,40 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Ruta para procesar el formulario
-app.post('/send', upload.fields([
-    { name: 'archivo', maxCount: 1 },
-    { name: 'foto', maxCount: 1 }
-]), async (req, res) => {
+// Ruta para recibir formularios
+app.post('/send', upload.fields([{ name: 'archivo' }, { name: 'foto' }]), async (req, res) => {
     try {
         const { nombre, email, cuit, telefono, opciones } = req.body;
-        const archivo = req.files['archivo'] ? req.files['archivo'][0] : null;
-        const foto = req.files['foto'] ? req.files['foto'][0] : null;
+        const archivosAdjuntos = [];
 
         // Guardar en MongoDB
         await new Formulario({ nombre, email, cuit, telefono, opciones }).save();
 
-        // Configurar email
-        const mailOptions = {
+        // Adjuntar archivos si existen
+        ['archivo', 'foto'].forEach(key => {
+            if (req.files[key]) {
+                archivosAdjuntos.push({ filename: req.files[key][0].originalname, path: req.files[key][0].path });
+            }
+        });
+
+        // Enviar email
+        await transporter.sendMail({
             from: process.env.EMAIL_USER,
             to: process.env.EMAIL_USER,
             subject: 'Nuevo formulario recibido',
             text: `Nombre: ${nombre}\nEmail: ${email}\nCUIT: ${cuit}\nTeléfono: ${telefono}\nOpción: ${opciones}`,
-            attachments: [
-                archivo ? { filename: archivo.originalname, path: archivo.path } : null,
-                foto ? { filename: foto.originalname, path: foto.path } : null
-            ].filter(a => a !== null)
-        };
-
-        await transporter.sendMail(mailOptions);
-
-        // Borrar archivos después de enviarlos
-        [archivo, foto].forEach(file => {
-            if (file) fs.unlink(file.path, err => err && console.error(err));
+            attachments: archivosAdjuntos
         });
 
-        res.json({ message: 'Formulario enviado con éxito' });
+        // Eliminar archivos después de enviarlos
+        archivosAdjuntos.forEach(file => fs.unlink(file.path, err => err && console.error(err)));
+
+        res.json({ message: '✅ Formulario enviado con éxito' });
     } catch (error) {
-        console.error('❌ Error:', error);
+        console.error('❌ Error en el servidor:', error);
         res.status(500).json({ message: 'Error al procesar el formulario' });
     }
 });
 
-
+// Iniciar servidor
 app.listen(PORT, () => console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`));

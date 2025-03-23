@@ -1,51 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario</title>
     <link rel="stylesheet" href="styles.css">
-    <title>Document</title>
 </head>
 <body>
-    <h1 class="titulo">Julieta Haye: Soluciones Financieras</h1>
-    <h3 class="subTitulo">Luego de completar este formulario nos podremos en contacto con vos personalmente!</h3>
+    <h1>Julieta Haye: Soluciones Financieras</h1>
+    <h3>Completá el formulario y nos pondremos en contacto</h3>
 
-<form action="/send" method="POST" enctype="multipart/form-data">
-    <label class="tituloLabel" for="nombre">Nombre y Apellido:</label>
-    <input class="inputLabel" type="text" id="nombre" name="nombre" required style="width: 100%; margin-bottom: 10px; padding: 8px;" placeholder="Fulanito De Tal">
+    <form id="contact-form" enctype="multipart/form-data">
+        <input type="text" name="nombre" placeholder="Nombre y Apellido" required>
+        <input type="email" name="email" placeholder="Correo electrónico" required>
+        <input type="text" name="cuit" placeholder="CUIT" required>
+        <input type="tel" name="telefono" placeholder="Número de Contacto" required>
+        
+        <select name="opciones" required>
+            <option value="" disabled selected>Seleccionar</option>
+            <option value="Personal Militar">Personal Militar</option>
+            <option value="Personal Docente">Personal Docente</option>
+            <option value="Personal Policial">Personal Policial</option>
+            <option value="Empleado de Comercio">Empleado de Comercio</option>
+            <option value="Otro">Otro</option>
+        </select>
 
-    <label class="tituloLabel" for="email">Correo electrónico:</label>
-    <input class="inputLabel" type="email" id="email" name="email" required style="width: 100%; margin-bottom: 10px; padding: 8px;" placeholder="Fulanito@gmail.com">
+        <label>Adjuntar Recibo de Sueldo:</label>
+        <input type="file" name="archivo" accept=".jpg, .jpeg, .png, .pdf" required>
 
-    <label class="tituloLabel" for="cuit">CUIT:</label>
-    <input class="inputLabel" type="text" id="cuit" name="cuit" required style="width: 100%; margin-bottom: 10px; padding: 8px;" placeholder="20-40236262-5">
+        <label>Adjuntar Movimientos Bancarios:</label>
+        <input type="file" name="foto" accept=".jpg, .jpeg, .png, .pdf" required>
 
-    <label class="tituloLabel" for="telefono">Número de Contacto:</label>
-    <input class="inputLabel" type="tel" id="telefono" name="telefono" required style="width: 100%; margin-bottom: 10px; padding: 8px;" placeholder="2241-45 5317">
+        <button type="submit">Enviar</button>
+    </form>
 
-    <label class="tituloLabel" for="opciones">Elige una opción:</label>
-    <select required class="inputLabel" id="opciones" name="opciones" style="width: 100%; margin-bottom: 10px; padding: 8px;">
-        <option value="" disabled selected>Seleccionar</option>
-        <option value="Personal Militar">Personal Militar</option>
-        <option value="Personal Docente">Personal Docente</option>
-        <option value="Personal Policial">Personal Policial</option>
-        <option value="Empleado de Comercio">Empleado de Comercio</option>
-        <option value="Otro">Otro</option>
-    </select>
-
-    <label for="archivo" class="tituloLabel">Adjuntar Foto/PDF del último recibo de sueldo:</label>
-    <input class="inputLabel" type="file" id="archivo" name="archivo" accept=".jpg, .jpeg, .png, .pdf" required>
-
-    <label for="foto" class="tituloLabel">Adjuntar Foto/PDF de últimos movimientos bancarios:</label>
-    <input class="inputLabel" type="file" id="foto" name="foto" accept=".jpg, .jpeg, .png, .pdf" required>
-
-    <button type="submit" class="botonEnviar">Enviar</button>
-</form>
-
-<!-- Botón flotante de WhatsApp -->
-<a href="https://wa.me/2241603641" target="_blank" class="wsp-float">
-    <img src="images/whatsapp.svg" alt="WhatsApp">
-</a>
-
+    <script src="script.js"></script>
 </body>
 </html>
