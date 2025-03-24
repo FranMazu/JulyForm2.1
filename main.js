@@ -9,7 +9,7 @@ const fs = require('fs');
 const app = express();
 
 // Tomar variables desde el entorno o la terminal
-const PORT = process.env.PORT ;
+const PORT = process.env.PORT || 3000;
 const MONGO_URI = process.env.MONGO_URI;
 const EMAIL_USER = process.env.EMAIL_USER;
 const EMAIL_PASS = process.env.EMAIL_PASS;
