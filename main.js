@@ -35,9 +35,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../frontend/public')));
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '../frontend/public', 'index.html'));
 });
 // Modelo de datos
 const FormSchema = new mongoose.Schema({
@@ -98,9 +98,10 @@ app.post('/send', upload.fields([{ name: 'archivo' }, { name: 'foto' }]), async 
     }
 });
 
-// Ruta para servir index.html
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "public", "index.html"));
+// Servir el frontend
+app.use(express.static(path.join(__dirname, '../frontend')));
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
 });
 
 // Iniciar servidor
