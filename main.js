@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -8,10 +7,20 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
+
+// Tomar variables desde el entorno o la terminal
 const PORT = process.env.PORT || 3000;
+const MONGO_URI = process.env.MONGO_URI;
+const EMAIL_USER = process.env.EMAIL_USER;
+const EMAIL_PASS = process.env.EMAIL_PASS;
+
+if (!MONGO_URI || !EMAIL_USER || !EMAIL_PASS) {
+    console.error("❌ ERROR: Faltan variables de entorno (MONGO_URI, EMAIL_USER, EMAIL_PASS)");
+    process.exit(1);
+}
 
 // Conectar a MongoDB
-mongoose.connect(process.env.MONGO_URI, {
+mongoose.connect(MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => console.log('✅ Conectado a MongoDB'))
@@ -25,6 +34,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static('uploads'));
+
+// Servir archivos estáticos desde public
+app.use(express.static(path.join(__dirname, "public")));
 
 // Modelo de datos
 const FormSchema = new mongoose.Schema({
@@ -47,10 +59,7 @@ const upload = multer({ storage });
 // Configuración de Nodemailer
 const transporter = nodemailer.createTransport({
     service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
+    auth: { user: EMAIL_USER, pass: EMAIL_PASS }
 });
 
 // Ruta para recibir formularios
@@ -71,8 +80,8 @@ app.post('/send', upload.fields([{ name: 'archivo' }, { name: 'foto' }]), async 
 
         // Enviar email
         await transporter.sendMail({
-            from: process.env.EMAIL_USER,
-            to: process.env.EMAIL_USER,
+            from: EMAIL_USER,
+            to: EMAIL_USER,
             subject: 'Nuevo formulario recibido',
             text: `Nombre: ${nombre}\nEmail: ${email}\nCUIT: ${cuit}\nTeléfono: ${telefono}\nOpción: ${opciones}`,
             attachments: archivosAdjuntos
@@ -86,6 +95,11 @@ app.post('/send', upload.fields([{ name: 'archivo' }, { name: 'foto' }]), async 
         console.error('❌ Error en el servidor:', error);
         res.status(500).json({ message: 'Error al procesar el formulario' });
     }
+});
+
+// Ruta para servir index.html
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // Iniciar servidor
