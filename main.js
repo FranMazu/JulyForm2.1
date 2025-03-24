@@ -1,4 +1,4 @@
-const express = require('express');
+/* const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const multer = require('multer');
@@ -106,3 +106,7 @@ app.get('*', (req, res) => {
 
 // Iniciar servidor
 app.listen(PORT, () => console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`));
+
+
+
+*/
